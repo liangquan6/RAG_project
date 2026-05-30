@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# 环境变量与密钥（勿提交）
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 向量库与运行时状态
+chroma_db/
+chroma_config_metadata.json
+md5.text
+
+# 日志
+logs/
+*.log
+
+# 评估产物（保留 baseline.md 与 .gitkeep）
+eval/results/rag_eval_*.json
+eval/results/last_run.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter
+.ipynb_checkpoints/
+
+# 测试 / 临时
+.pytest_cache/
+.coverage
+htmlcov/

@@ -1,0 +1,8 @@
+chat_model_name: qwen3-max
+embedding_model_name: text-embedding-v4
+
+# RAG 检索增强（query 改写 + 重排序）
+enable_query_rewrite: true
+enable_rerank: true
+rewrite_extra_count: 2
+retrieve_k: 15

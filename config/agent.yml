@@ -1,0 +1,25 @@
+external_data_path: data/external/records.csv
+
+# 多轮对话记忆（滑动窗口，条数 = 消息条数而非轮数）
+conversation:
+  max_messages: 10
+
+# 天气 API 配置
+weather_api:
+  # API 提供商：xinzhi（心知天气）、hefeng（和风天气）、mock（模拟）
+  provider: xinzhi
+  # 心知天气 API Key
+  xinzhi_key: ""
+  # 心知天气 API 地址
+  xinzhi_url: "https://api.seniverse.com/v3/weather/now.json"
+  # 和风天气 API Key
+  hefeng_key: ""
+  # 和风天气 API 地址
+  hefeng_url: "https://devapi.qweather.com/v7/weather/now"
+
+# 位置服务配置
+location_api:
+  # 位置提供商：mock（模拟）、ip_api（IP 地理定位）
+  provider: ip_api
+  # IP 地理定位 API 地址（免费服务，无需 API Key）
+  ip_api_url: "http://ip-api.com/json/"
