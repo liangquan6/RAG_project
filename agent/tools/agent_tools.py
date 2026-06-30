@@ -72,7 +72,7 @@ def get_weather(city: str) -> str:
     weather_service = get_weather_service()
     return weather_service.get_weather(city)
 
-# @tool(description="获取用户所在城市的名称，以纯字符串的形式返回")
+@tool(description="获取用户所在城市的名称，以纯字符串的形式返回")
 def get_user_location() -> str:
     """
     用户位置工具：获取用户当前所在城市

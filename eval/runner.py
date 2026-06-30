@@ -155,7 +155,18 @@ class RAGEvaluator:
                 llm=llm,
                 embeddings=embeddings,
             )
-            scores = {key: round(float(val), 4) for key, val in result.items()}
+            # ragas 0.4+: result.scores 是 list[dict], 每条样本一个分数 dict, 需按指标求平均
+            raw_scores = result.scores if hasattr(result, "scores") else result
+            agg: dict[str, list[float]] = {}
+            if isinstance(raw_scores, list):
+                for row in raw_scores:
+                    for k, v in row.items():
+                        agg.setdefault(k, []).append(float(v))
+                scores = {k: round(sum(v) / len(v), 4) for k, v in agg.items()}
+            elif hasattr(raw_scores, "items"):
+                scores = {k: round(float(v), 4) for k, v in raw_scores.items()}
+            else:
+                scores = {}
             return {"enabled": True, "scores": scores, "sample_count": len(rows)}
         except Exception as e:
             logger.error(f"[RAG Eval] Ragas 评估失败: {e}", exc_info=True)
