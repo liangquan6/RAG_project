@@ -9,8 +9,9 @@
 | **ReAct Agent** | 7 个 Tool + Middleware（监控、日志、报告场景动态 Prompt） |
 | **RAG** | Chroma 向量库、通义 Embedding、Query 改写、Embedding 重排序 |
 | **多轮对话** | 滑动窗口记忆（默认最近 10 条消息） |
-| **向量库治理** | 配置变更自动检测并重建，MD5 增量入库 |
-| **评估** | Hit@K / MRR 检索指标，可选 Ragas 生成指标 |
+| **流式输出** | 真逐 token 流式（`stream_mode="messages"` + 防 ToolMessage 泄露） |
+| **向量库治理** | 配置变更自动检测并重建，MD5 增量入库，文件更新自动清理旧分片 |
+| **评估** | Hit@5 / MRR 检索 + Ragas 生成（Faithfulness / Answer Relevancy / Context Precision） |
 
 ## 项目结构
 
@@ -87,14 +88,24 @@ python -m streamlit run app.py
 ### 5. 运行 RAG 评估
 
 ```bash
-# 仅检索指标（Hit@3、MRR，较快）
+# 仅检索指标（Hit@5、MRR，较快）
 python -m eval.run_rag_eval
 
 # 含 Ragas 生成指标（较慢，消耗更多 API）
 python -m eval.run_rag_eval --with-ragas
 ```
 
-结果保存在 `eval/results/rag_eval_*.json`，对比记录见 `eval/results/baseline.md`。
+最新评测结果（15 样本，qwen-plus）：
+
+| 指标 | 数值 |
+|------|------|
+| Hit@5 | 66.67% |
+| MRR@5 | 0.5333 |
+| Faithfulness | 0.9222 |
+| Answer Relevancy | 0.7780 |
+| Context Precision | 0.6967 |
+
+结果保存在 `eval/results/rag_eval_*.json`。
 
 ## 配置说明
 
@@ -102,7 +113,7 @@ python -m eval.run_rag_eval --with-ragas
 
 | 配置项 | 说明 |
 |--------|------|
-| `chat_model_name` | 对话模型，如 `qwen3-max` |
+| `chat_model_name` | 对话模型，当前 `qwen-plus`（流式 + 工具调用稳定） |
 | `embedding_model_name` | 向量模型，如 `text-embedding-v4` |
 | `enable_query_rewrite` | 是否开启 Query 多表述改写 |
 | `enable_rerank` | 是否开启 Embedding 重排序 |

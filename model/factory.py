@@ -51,7 +51,7 @@ class ChatModelFactory(BaseModelFactory):
         返回:
             ChatTongyi 模型实例
         """
-        return ChatTongyi(model_name=rag_config["chat_model_name"])
+        return ChatTongyi(model_name=rag_config["chat_model_name"], streaming=True)
 
 
 

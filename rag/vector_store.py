@@ -9,6 +9,8 @@
 - 提供检索器接口
 """
 
+import platform
+import sys
 from langchain_chroma import Chroma
 from utils.config_handler import chroma_config
 from model.factory import embed_model
@@ -19,6 +21,18 @@ from utils.logger_handler import logger
 from utils.vector_store_manager import check_and_rebuild_if_needed, save_config_metadata
 from langchain_core.documents import Document
 import os
+
+
+def _use_memory_mode_fallback() -> bool:
+    """
+    判断是否需要 fallback 到内存模式。
+    Windows 环境下 ChromaDB 持久化 + onnxruntime 可能触发 0xC0000005 访问违规，
+    因此检测到 Windows 时自动使用内存模式以保证服务可用。
+    """
+    platform_system = platform.system()
+    if platform_system == "Windows":
+        return True
+    return False
 
 
 class VectorStoreService:
@@ -56,11 +70,19 @@ class VectorStoreService:
             length_function=len,
         )
 
-        self.vector_store = Chroma(
-            collection_name=chroma_config["collection_name"],
-            embedding_function=embed_model,
-            persist_directory=chroma_config["persist_directory"],
-        )
+        memory_mode = _use_memory_mode_fallback()
+        if memory_mode:
+            logger.info("[向量库]Windows 环境检测：使用内存模式（避免 onnxruntime 持久化崩溃）")
+            self.vector_store = Chroma(
+                collection_name=chroma_config["collection_name"],
+                embedding_function=embed_model,
+            )
+        else:
+            self.vector_store = Chroma(
+                collection_name=chroma_config["collection_name"],
+                embedding_function=embed_model,
+                persist_directory=chroma_config["persist_directory"],
+            )
 
         if auto_load:
             self.load_document()
@@ -159,6 +181,11 @@ class VectorStoreService:
         for path in allowed_files_path:
             md5_hex = get_file_md5_hash(path)
 
+            if not md5_hex:
+                logger.warning(f"[加载知识库]{path} MD5计算失败，跳过")
+                error_count += 1
+                continue
+
             if check_md5_hash(md5_hex):
                 logger.info(f"[加载知识库]{path}内容已存在于知识库，跳过")
                 skipped_count += 1
@@ -178,6 +205,11 @@ class VectorStoreService:
                     logger.warning(f"[加载知识库]{path}分片后内容为空，跳过")
                     skipped_count += 1
                     continue
+
+                try:
+                    self.vector_store.delete(where={"source": path})
+                except Exception:
+                    pass
 
                 self.vector_store.add_documents(split_document)
                 save_md5_hash(md5_hex)

@@ -138,6 +138,8 @@ def generate_external_data():
             for line in f.readlines()[1:]:
                 # 按逗号分割，并去除引号
                 arr: list[str] = line.strip().split(",")
+                if len(arr) < 6:
+                    continue
 
                 user_id: str = arr[0].replace('"', "")
                 feature: str = arr[1].replace('"', "")

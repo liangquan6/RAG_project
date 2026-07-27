@@ -1,4 +1,4 @@
-chat_model_name: qwen3-max
+chat_model_name: qwen-plus
 embedding_model_name: text-embedding-v4
 
 # RAG 检索增强（query 改写 + 重排序）

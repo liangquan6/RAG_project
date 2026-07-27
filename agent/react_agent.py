@@ -14,6 +14,7 @@ from __future__ import annotations
 from typing import Any
 
 from langchain.agents import create_agent
+from langchain_core.messages import AIMessage, AIMessageChunk
 
 from agent.tools.agent_tools import (
     fetch_external_data,
@@ -83,14 +84,13 @@ class ReactAgent:
         input_dict = {"messages": messages}
 
         try:
-            for chunk in self.agent.stream(
+            for message_chunk, _ in self.agent.stream(
                 input_dict,
-                stream_mode="values",
+                stream_mode="messages",
                 context={"report": False},
             ):
-                latest_message = chunk["messages"][-1]
-                if latest_message.content:
-                    yield latest_message.content.strip() + "\n"
+                if isinstance(message_chunk, (AIMessageChunk, AIMessage)) and message_chunk.content:
+                    yield message_chunk.content
         finally:
             clear_chat_history()
 

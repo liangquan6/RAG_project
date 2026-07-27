@@ -53,3 +53,6 @@ desktop.ini
 .coverage
 htmlcov/
 output.txt
+
+# WorkBuddy 项目记忆
+.workbuddy/
